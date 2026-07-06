@@ -5,11 +5,16 @@ import 'package:http/http.dart' as http;
 
 class ApiService {
   /// =====================================
-  /// Local FastAPI
+  /// Local Development
+  /// Setelah backend berhasil deploy ke Render,
+  /// ganti URL di bawah ini.
   /// =====================================
 
-  // Ganti nanti setelah deploy ke Render
   static const String baseUrl = "http://192.168.0.27:8000";
+
+  // Contoh setelah deploy:
+  // static const String baseUrl =
+  //     "https://skinvision-ai-backend.onrender.com";
 
   /// =====================================
 
@@ -31,20 +36,22 @@ class ApiService {
       final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-
-        return data;
-      } else {
-        throw Exception("Server Error (${response.statusCode})");
+        return jsonDecode(response.body);
       }
+
+      throw Exception(
+        "Server Error (${response.statusCode}) : ${response.body}",
+      );
     } on SocketException {
-      throw Exception("Tidak dapat terhubung ke server.");
+      throw Exception(
+        "Tidak dapat terhubung ke server. Pastikan backend sedang berjalan.",
+      );
     } on HttpException {
       throw Exception("Kesalahan jaringan.");
     } on FormatException {
       throw Exception("Response server tidak valid.");
     } catch (e) {
-      throw Exception(e.toString());
+      throw Exception("Terjadi kesalahan: $e");
     }
   }
 
