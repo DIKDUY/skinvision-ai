@@ -1,6 +1,7 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image
+from pathlib import Path
 import numpy as np
 
 app = FastAPI(title="SkinVision AI API")
@@ -26,12 +27,14 @@ classes = {
     3: "Dermatofibroma",
     4: "Melanoma",
     5: "Melanocytic Nevi",
-    6: "Vascular Lesions"
+    6: "Vascular Lesions",
 }
 
 # ==========================================
 # Load Model
 # ==========================================
+BASE_DIR = Path(__file__).resolve().parent
+
 model = None
 
 
@@ -42,14 +45,26 @@ def load_model():
     try:
         from tensorflow.keras.models import load_model
 
-        print("Loading AI Model...")
+        model_path = BASE_DIR / "model" / "skin_cnn.keras"
 
-        model = load_model("model/skin_cnn.keras")
+        print("=" * 50)
+        print("Loading AI Model...")
+        print(f"Model Path : {model_path}")
+
+        if not model_path.exists():
+            raise FileNotFoundError(f"Model tidak ditemukan: {model_path}")
+
+        model = load_model(model_path)
 
         print("✅ Model loaded successfully")
+        print("=" * 50)
 
     except Exception as e:
-        print("❌ Model load failed:", e)
+        print("=" * 50)
+        print("❌ Model load failed")
+        print(e)
+        print("=" * 50)
+        model = None
 
 
 # ==========================================
@@ -78,7 +93,6 @@ def health():
 # ==========================================
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
-
     # Validasi file harus berupa gambar
     if not file.content_type or not file.content_type.startswith("image/"):
         return {
