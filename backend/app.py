@@ -60,94 +60,87 @@ CLASSES = [
 
 DISEASE_INFO = {
 
-
     "Actinic Keratoses": {
 
         "emoji": "🟡",
 
         "description":
-        "Actinic Keratoses is a rough, scaly skin lesion caused by long-term exposure to ultraviolet (UV) radiation. It is considered a precancerous condition that may develop into skin cancer.",
+        "Actinic Keratoses merupakan kelainan kulit yang ditandai dengan bercak kasar dan bersisik akibat paparan sinar ultraviolet (UV) dalam jangka waktu lama. Kondisi ini termasuk lesi prakanker yang berpotensi berkembang menjadi kanker kulit apabila tidak ditangani.",
 
         "recommendation":
-        "Consult a dermatologist for evaluation. Use sunscreen regularly and protect skin from excessive sunlight."
+        "Disarankan untuk berkonsultasi dengan dokter spesialis kulit. Gunakan tabir surya secara rutin dan hindari paparan sinar matahari berlebihan."
 
     },
-
 
     "Basal Cell Carcinoma": {
 
         "emoji": "🔵",
 
         "description":
-        "Basal Cell Carcinoma is the most common type of skin cancer. It usually grows slowly but requires treatment to prevent tissue damage.",
+        "Basal Cell Carcinoma adalah jenis kanker kulit yang paling umum terjadi. Penyakit ini biasanya tumbuh secara perlahan, namun tetap memerlukan penanganan medis agar tidak merusak jaringan di sekitarnya.",
 
         "recommendation":
-        "Seek medical evaluation from a dermatologist for proper diagnosis and treatment."
+        "Segera lakukan pemeriksaan ke dokter spesialis kulit untuk mendapatkan diagnosis dan penanganan yang tepat."
 
     },
-
 
     "Benign Keratosis": {
 
         "emoji": "🟢",
 
         "description":
-        "Benign Keratosis is a harmless skin growth that is usually not cancerous.",
+        "Benign Keratosis merupakan pertumbuhan jaringan kulit yang bersifat jinak dan umumnya tidak berbahaya. Meskipun demikian, perubahan bentuk atau warna tetap perlu diperhatikan.",
 
         "recommendation":
-        "Monitor the lesion. Consult a healthcare professional if changes occur."
+        "Lakukan pemantauan secara berkala dan konsultasikan dengan tenaga medis apabila terjadi perubahan pada lesi."
 
     },
-
 
     "Dermatofibroma": {
 
         "emoji": "🟤",
 
         "description":
-        "Dermatofibroma is a benign skin nodule that commonly appears after minor skin injuries.",
+        "Dermatofibroma adalah benjolan kecil pada kulit yang bersifat jinak dan sering muncul setelah cedera ringan, seperti gigitan serangga atau luka kecil.",
 
         "recommendation":
-        "Usually does not require treatment unless it changes or causes discomfort."
+        "Umumnya tidak memerlukan pengobatan. Namun, segera konsultasikan ke dokter apabila benjolan membesar, berubah warna, atau terasa nyeri."
 
     },
-
 
     "Melanoma": {
 
         "emoji": "🔴",
 
         "description":
-        "Melanoma is an aggressive form of skin cancer that can spread quickly if not detected early.",
+        "Melanoma merupakan salah satu jenis kanker kulit yang paling berbahaya karena dapat menyebar dengan cepat ke organ tubuh lain apabila tidak terdeteksi sejak dini.",
 
         "recommendation":
-        "Seek immediate professional medical evaluation if melanoma is suspected."
+        "Segera lakukan pemeriksaan ke dokter spesialis kulit apabila ditemukan perubahan bentuk, ukuran, atau warna pada tahi lalat maupun lesi kulit."
 
     },
-
 
     "Melanocytic Nevi": {
 
         "emoji": "🟣",
 
         "description":
-        "Melanocytic Nevi are common moles formed by pigment-producing cells. Most are benign.",
+        "Melanocytic Nevi adalah tahi lalat yang terbentuk dari kumpulan sel penghasil pigmen kulit (melanosit). Sebagian besar bersifat jinak, namun tetap perlu dipantau apabila mengalami perubahan.",
 
         "recommendation":
-        "Monitor ABCDE signs: Asymmetry, Border, Color, Diameter, and Evolution."
+        "Perhatikan perubahan menggunakan metode ABCDE (Asymmetry, Border, Color, Diameter, dan Evolution). Konsultasikan dengan dokter apabila ditemukan perubahan yang mencurigakan."
 
     },
-
 
     "Vascular Lesions": {
 
         "emoji": "🩷",
 
         "description":
-        "Vascular Lesions are abnormalities involving blood vessels. Many are harmless.",
+        "Vascular Lesions merupakan kelainan pada pembuluh darah yang tampak sebagai bercak atau benjolan berwarna merah hingga keunguan pada kulit. Sebagian besar bersifat jinak.",
 
         "recommendation":
-        "Consult a healthcare professional if the lesion grows, bleeds, or becomes painful."
+        "Segera konsultasikan dengan dokter apabila lesi bertambah besar, mudah berdarah, terasa nyeri, atau mengalami perubahan bentuk."
 
     }
 

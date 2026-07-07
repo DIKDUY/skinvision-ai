@@ -3,63 +3,124 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 
+import '../models/diagnosis_model.dart';
+
 class ApiService {
-  /// =====================================
-  /// Local Development
-  /// Setelah backend berhasil deploy ke Render,
-  /// ganti URL di bawah ini.
-  /// =====================================
+  static const String baseUrl = "https://dikikiki-skinvision-ai.hf.space";
 
-  static const String baseUrl = "http://192.168.0.27:8000";
+  /// ===============================
+  /// MAIN PREDICTION FUNCTION
+  /// ===============================
 
-  // Contoh setelah deploy:
-  // static const String baseUrl =
-  //     "https://skinvision-ai-backend.onrender.com";
-
-  /// =====================================
-
-  static Future<Map<String, dynamic>> predictDisease(File imageFile) async {
+  static Future<DiagnosisModel> predictDisease(File imageFile) async {
     try {
-      final request = http.MultipartRequest(
+      // ===============================
+      // STEP 1
+      // Upload image
+      // ===============================
+
+      final uploadRequest = http.MultipartRequest(
         "POST",
-        Uri.parse("$baseUrl/predict"),
+        Uri.parse("$baseUrl/gradio_api/upload"),
       );
 
-      request.files.add(
-        await http.MultipartFile.fromPath("file", imageFile.path),
+      // User-Agent untuk identitas aplikasi
+      uploadRequest.headers.addAll({"User-Agent": "SkinVisionAI-Mobile-App"});
+
+      uploadRequest.files.add(
+        await http.MultipartFile.fromPath("files", imageFile.path),
       );
 
-      final streamedResponse = await request.send().timeout(
+      final uploadResponse = await uploadRequest.send().timeout(
         const Duration(seconds: 90),
       );
 
-      final response = await http.Response.fromStream(streamedResponse);
+      final uploadBody = await uploadResponse.stream.bytesToString();
 
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
+      if (uploadResponse.statusCode != 200) {
+        throw Exception("Upload gagal: $uploadBody");
       }
 
-      throw Exception(
-        "Server Error (${response.statusCode}) : ${response.body}",
-      );
+      print("Upload berhasil");
+
+      final uploadedPath = jsonDecode(uploadBody)[0];
+
+      // ===============================
+      // STEP 2
+      // Call Gradio Predict
+      // ===============================
+
+      final predictResponse = await http
+          .post(
+            Uri.parse("$baseUrl/gradio_api/call/v2/predict"),
+
+            headers: {
+              "Content-Type": "application/json",
+              "User-Agent": "SkinVisionAI-Mobile-App",
+            },
+
+            body: jsonEncode({
+              "image": {
+                "path": uploadedPath,
+
+                "meta": {"_type": "gradio.FileData"},
+              },
+            }),
+          )
+          .timeout(const Duration(seconds: 90));
+
+      if (predictResponse.statusCode != 200) {
+        throw Exception("Prediction gagal: ${predictResponse.body}");
+      }
+
+      final eventId = jsonDecode(predictResponse.body)["event_id"];
+
+      print("Event ID: $eventId");
+
+      // ===============================
+      // STEP 3
+      // Get Result
+      // ===============================
+
+      final resultResponse = await http
+          .get(
+            Uri.parse("$baseUrl/gradio_api/call/predict/$eventId"),
+
+            headers: {"User-Agent": "SkinVisionAI-Mobile-App"},
+          )
+          .timeout(const Duration(seconds: 120));
+
+      if (resultResponse.statusCode != 200) {
+        throw Exception("Gagal mengambil hasil prediksi");
+      }
+
+      final result = parseSSE(resultResponse.body);
+
+      return DiagnosisModel.fromGradio(result);
     } on SocketException {
-      throw Exception(
-        "Tidak dapat terhubung ke server. Pastikan backend sedang berjalan.",
-      );
-    } on HttpException {
-      throw Exception("Kesalahan jaringan.");
+      throw Exception("Tidak dapat terhubung ke server");
     } on FormatException {
-      throw Exception("Response server tidak valid.");
+      throw Exception("Format response server tidak valid");
     } catch (e) {
-      throw Exception("Terjadi kesalahan: $e");
+      throw Exception(e.toString());
     }
   }
 
-  static String getShapUrl(String path) {
-    if (path.isEmpty) {
-      return "";
+  /// ===============================
+  /// PARSE SERVER SENT EVENT
+  /// ===============================
+
+  static List<dynamic> parseSSE(String body) {
+    final lines = body.split("\n");
+
+    for (final line in lines) {
+      if (line.startsWith("data:")) {
+        final jsonString = line.replaceFirst("data:", "").trim();
+
+        return jsonDecode(jsonString);
+      }
     }
 
-    return "$baseUrl/$path";
+    throw Exception("Data prediksi tidak ditemukan");
   }
 }

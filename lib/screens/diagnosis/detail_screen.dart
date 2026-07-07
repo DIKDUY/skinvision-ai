@@ -1,162 +1,96 @@
 import 'package:flutter/material.dart';
 
 class DetailScreen extends StatelessWidget {
-
   final String disease;
+
+  final String description;
+
+  final String recommendation;
 
   const DetailScreen({
     super.key,
+
     required this.disease,
+
+    required this.description,
+
+    required this.recommendation,
   });
-
-  Map<String, dynamic> getDiseaseData() {
-
-    final diseases = {
-
-      "Melanoma": {
-        "description":
-            "Jenis kanker kulit yang berkembang dari sel melanosit.",
-        "symptoms":
-            "Perubahan bentuk, ukuran, atau warna tahi lalat.",
-        "prevention":
-            "Gunakan sunscreen dan hindari paparan sinar UV berlebih."
-      },
-
-      "Basal Cell Carcinoma": {
-        "description":
-            "Kanker kulit yang berkembang pada sel basal.",
-        "symptoms":
-            "Benjolan kecil mengkilap atau luka yang tidak sembuh.",
-        "prevention":
-            "Gunakan pelindung kulit saat berada di luar ruangan."
-      },
-
-      "Actinic Keratoses": {
-        "description":
-            "Lesi kulit akibat paparan sinar matahari jangka panjang.",
-        "symptoms":
-            "Kulit kasar dan bersisik.",
-        "prevention":
-            "Kurangi paparan sinar UV."
-      },
-
-      "Benign Keratosis": {
-        "description":
-            "Pertumbuhan kulit jinak yang umum terjadi.",
-        "symptoms":
-            "Bercak kecoklatan atau hitam.",
-        "prevention":
-            "Pantau perubahan pada kulit."
-      },
-
-      "Dermatofibroma": {
-        "description":
-            "Benjolan kulit jinak yang berasal dari jaringan ikat.",
-        "symptoms":
-            "Benjolan kecil berwarna coklat.",
-        "prevention":
-            "Periksa jika terjadi perubahan bentuk."
-      },
-
-      "Melanocytic Nevi": {
-        "description":
-            "Tahi lalat yang terbentuk dari sel melanosit.",
-        "symptoms":
-            "Bintik coklat atau hitam pada kulit.",
-        "prevention":
-            "Pantau perubahan ukuran dan warna."
-      },
-
-      "Vascular Lesions": {
-        "description":
-            "Kelainan pembuluh darah pada kulit.",
-        "symptoms":
-            "Bercak merah atau ungu.",
-        "prevention":
-            "Periksakan jika bertambah besar."
-      }
-    };
-
-    return diseases[disease] ??
-        {
-          "description":
-              "Informasi tidak tersedia.",
-          "symptoms":
-              "-",
-          "prevention":
-              "-"
-        };
-  }
 
   @override
   Widget build(BuildContext context) {
-
-    final data = getDiseaseData();
-
     return Scaffold(
-
       appBar: AppBar(
-        title: const Text(
-          "Detail Penyakit",
-        ),
+        title: const Text("Detail Penyakit"),
+
+        backgroundColor: Colors.teal,
       ),
 
-      body: Padding(
-
-        padding:
-            const EdgeInsets.all(20),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
 
         child: Column(
-
-          crossAxisAlignment:
-              CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
 
           children: [
+            Center(
+              child: Text(
+                disease,
 
-            Text(
-              disease,
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight:
-                    FontWeight.bold,
+                textAlign: TextAlign.center,
+
+                style: const TextStyle(
+                  fontSize: 24,
+
+                  fontWeight: FontWeight.bold,
+                ),
               ),
+            ),
+
+            const SizedBox(height: 30),
+
+            buildCard(title: "Deskripsi Penyakit", content: description),
+
+            const SizedBox(height: 20),
+
+            buildCard(
+              title: "Gejala",
+
+              content:
+                  "Perhatikan perubahan bentuk, warna, ukuran, atau perkembangan lesi kulit.",
             ),
 
             const SizedBox(height: 20),
 
+            buildCard(title: "Pencegahan", content: recommendation),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildCard({required String title, required String content}) {
+    return Card(
+      elevation: 3,
+
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+
+          children: [
             Text(
-              "Deskripsi",
-              style: TextStyle(
-                fontWeight:
-                    FontWeight.bold,
-              ),
+              title,
+
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
 
-            Text(data["description"]),
+            const SizedBox(height: 10),
 
-            const SizedBox(height: 20),
-
-            Text(
-              "Gejala",
-              style: TextStyle(
-                fontWeight:
-                    FontWeight.bold,
-              ),
-            ),
-
-            Text(data["symptoms"]),
-
-            const SizedBox(height: 20),
-
-            Text(
-              "Pencegahan",
-              style: TextStyle(
-                fontWeight:
-                    FontWeight.bold,
-              ),
-            ),
-
-            Text(data["prevention"]),
+            Text(content, textAlign: TextAlign.justify),
           ],
         ),
       ),
