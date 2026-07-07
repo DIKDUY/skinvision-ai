@@ -7,114 +7,243 @@ from pathlib import Path
 
 from tensorflow.keras.models import load_model
 
+
+# =====================================================
+# Configuration
+# =====================================================
+
+IMAGE_SIZE = (128, 128)
+
+
 # =====================================================
 # Load CNN Model
 # =====================================================
 
 BASE_DIR = Path(__file__).resolve().parent
+
 MODEL_PATH = BASE_DIR / "skin_cnn.keras"
+
 
 print("=" * 60)
 print("🩺 SkinVision AI")
 print(f"Loading model from: {MODEL_PATH}")
 print("=" * 60)
 
+
+if not MODEL_PATH.exists():
+    raise FileNotFoundError(
+        f"Model tidak ditemukan: {MODEL_PATH}"
+    )
+
+
 model = load_model(MODEL_PATH)
 
-print("✅ Model loaded successfully!")
+
+print("✅ Model berhasil dimuat")
 print("=" * 60)
 
 # =====================================================
 # Skin Disease Classes
 # =====================================================
 
-classes = {
-    0: "Actinic Keratoses",
-    1: "Basal Cell Carcinoma",
-    2: "Benign Keratosis",
-    3: "Dermatofibroma",
-    4: "Melanoma",
-    5: "Melanocytic Nevi",
-    6: "Vascular Lesions",
-}
+CLASSES = [
+
+    "Actinic Keratoses",
+    "Basal Cell Carcinoma",
+    "Benign Keratosis",
+    "Dermatofibroma",
+    "Melanoma",
+    "Melanocytic Nevi",
+    "Vascular Lesions"
+
+]
+
 
 # =====================================================
 # Disease Information
 # =====================================================
 
-info = {
+DISEASE_INFO = {
+
 
     "Actinic Keratoses": {
+
         "emoji": "🟡",
-        "description": "Actinic Keratoses is a rough and scaly skin lesion caused by long-term sun exposure. Although often considered precancerous, early treatment can prevent progression.",
-        "recommendation": "Consult a dermatologist for examination and appropriate treatment."
+
+        "description":
+        "Actinic Keratoses is a rough, scaly skin lesion caused by long-term exposure to ultraviolet (UV) radiation. It is considered a precancerous condition that may develop into skin cancer.",
+
+        "recommendation":
+        "Consult a dermatologist for evaluation. Use sunscreen regularly and protect skin from excessive sunlight."
+
     },
+
 
     "Basal Cell Carcinoma": {
+
         "emoji": "🔵",
-        "description": "Basal Cell Carcinoma is the most common form of skin cancer. It usually grows slowly and rarely spreads but should be treated promptly.",
-        "recommendation": "Seek medical treatment to prevent further tissue damage."
+
+        "description":
+        "Basal Cell Carcinoma is the most common type of skin cancer. It usually grows slowly but requires treatment to prevent tissue damage.",
+
+        "recommendation":
+        "Seek medical evaluation from a dermatologist for proper diagnosis and treatment."
+
     },
+
 
     "Benign Keratosis": {
+
         "emoji": "🟢",
-        "description": "Benign Keratosis is a non-cancerous skin growth that generally does not require treatment unless symptoms develop.",
-        "recommendation": "Monitor the lesion and consult a doctor if any changes occur."
+
+        "description":
+        "Benign Keratosis is a harmless skin growth that is usually not cancerous.",
+
+        "recommendation":
+        "Monitor the lesion. Consult a healthcare professional if changes occur."
+
     },
+
 
     "Dermatofibroma": {
+
         "emoji": "🟤",
-        "description": "Dermatofibroma is a benign skin nodule that is usually harmless and stable over time.",
-        "recommendation": "Medical treatment is usually unnecessary unless the lesion becomes painful or changes."
+
+        "description":
+        "Dermatofibroma is a benign skin nodule that commonly appears after minor skin injuries.",
+
+        "recommendation":
+        "Usually does not require treatment unless it changes or causes discomfort."
+
     },
+
 
     "Melanoma": {
+
         "emoji": "🔴",
-        "description": "Melanoma is one of the most dangerous types of skin cancer because it can spread rapidly to other organs if left untreated.",
-        "recommendation": "Seek immediate evaluation by a dermatologist or oncologist."
+
+        "description":
+        "Melanoma is an aggressive form of skin cancer that can spread quickly if not detected early.",
+
+        "recommendation":
+        "Seek immediate professional medical evaluation if melanoma is suspected."
+
     },
+
 
     "Melanocytic Nevi": {
+
         "emoji": "🟣",
-        "description": "Melanocytic Nevi are common moles that are generally benign. Most remain harmless throughout life.",
-        "recommendation": "Monitor for changes in size, color, border, or shape."
+
+        "description":
+        "Melanocytic Nevi are common moles formed by pigment-producing cells. Most are benign.",
+
+        "recommendation":
+        "Monitor ABCDE signs: Asymmetry, Border, Color, Diameter, and Evolution."
+
     },
 
+
     "Vascular Lesions": {
+
         "emoji": "🩷",
-        "description": "Vascular Lesions are abnormalities of blood vessels that are often benign but may require evaluation if symptoms appear.",
-        "recommendation": "Consult a healthcare professional if the lesion grows, bleeds, or becomes painful."
+
+        "description":
+        "Vascular Lesions are abnormalities involving blood vessels. Many are harmless.",
+
+        "recommendation":
+        "Consult a healthcare professional if the lesion grows, bleeds, or becomes painful."
+
     }
 
 }
 
 # =====================================================
+# Image Preprocessing
+# =====================================================
+
+def preprocess_image(image: Image.Image):
+
+    image = image.convert("RGB")
+
+    image = image.resize(
+        IMAGE_SIZE
+    )
+
+
+    img = np.asarray(
+        image,
+        dtype=np.float32
+    )
+
+
+    img = img / 255.0
+
+
+    img = np.expand_dims(
+        img,
+        axis=0
+    )
+
+
+    return img
+
+
+
+# =====================================================
 # Probability Chart
 # =====================================================
 
-def create_chart(pred):
+def create_chart(predictions):
 
-    labels = list(classes.values())
-    values = pred * 100
+    labels = CLASSES
 
-    fig, ax = plt.subplots(figsize=(8,4))
+    values = predictions * 100
 
-    bars = ax.barh(labels, values)
 
-    ax.set_xlim(0,100)
-    ax.set_xlabel("Confidence (%)")
-    ax.set_title("Prediction Probability")
+    fig, ax = plt.subplots(
+        figsize=(8, 4)
+    )
 
-    for bar, value in zip(bars, values):
+
+    bars = ax.barh(
+        labels,
+        values
+    )
+
+
+    ax.set_xlim(
+        0,
+        100
+    )
+
+
+    ax.set_xlabel(
+        "Confidence (%)"
+    )
+
+
+    ax.set_title(
+        "Prediction Probability"
+    )
+
+
+    for bar, value in zip(
+        bars,
+        values
+    ):
+
         ax.text(
             value + 1,
-            bar.get_y() + bar.get_height()/2,
+            bar.get_y() + bar.get_height() / 2,
             f"{value:.2f}%",
             va="center",
             fontsize=9
         )
 
+
     plt.tight_layout()
+
 
     return fig
 
@@ -135,173 +264,215 @@ def predict(image):
             None
         )
 
-    image = image.convert("RGB")
-    image = image.resize((128,128))
 
-    img = np.array(image,dtype=np.float32)/255.0
-    img = np.expand_dims(img,axis=0)
+    try:
 
-    pred = model.predict(img,verbose=0)[0]
+        # Preprocess image
+        img = preprocess_image(image)
 
-    idx = int(np.argmax(pred))
-    disease = classes[idx]
 
-    confidence = float(pred[idx])*100
+        # Model prediction
+        predictions = model.predict(
+            img,
+            verbose=0
+        )[0]
 
-    data = info[disease]
 
-    prediction = f"{data['emoji']} {disease}"
+        # Get highest probability
+        predicted_index = int(
+            np.argmax(predictions)
+        )
 
-    confidence_text = f"{confidence:.2f}%"
 
-    top3 = np.argsort(pred)[::-1][:3]
+        disease = CLASSES[predicted_index]
 
-    top3_text = ""
 
-    for i in top3:
-        top3_text += f"• {classes[i]} : {pred[i]*100:.2f}%\n"
+        confidence = float(
+            predictions[predicted_index] * 100
+        )
 
-    chart = create_chart(pred)
 
-    return (
+        disease_info = DISEASE_INFO[disease]
 
-        prediction,
 
-        confidence_text,
+        prediction_text = (
 
-        data["description"],
+            f"{disease_info['emoji']} {disease}"
 
-        data["recommendation"],
+        )
 
-        top3_text,
 
-        chart
+        confidence_text = (
 
-    )
+            f"{confidence:.2f}%"
 
+        )
+
+
+        # Top 3 prediction
+
+        top3_indices = np.argsort(
+            predictions
+        )[::-1][:3]
+
+
+        top3_text = ""
+
+
+        for idx in top3_indices:
+
+            top3_text += (
+
+                f"• {CLASSES[idx]} : "
+                f"{predictions[idx] * 100:.2f}%\n"
+
+            )
+
+
+        chart = create_chart(
+            predictions
+        )
+
+
+        return (
+
+            prediction_text,
+
+            confidence_text,
+
+            disease_info["description"],
+
+            disease_info["recommendation"],
+
+            top3_text.strip(),
+
+            chart
+
+        )
+
+
+    except Exception as e:
+
+
+        return (
+
+            "Prediction Failed",
+
+            "-",
+
+            str(e),
+
+            "Please try another image.",
+
+            "",
+
+            None
+
+        )
+    
 # =====================================================
-# User Interface
+# Gradio Application
 # =====================================================
 
 with gr.Blocks(
-    title="SkinVision AI",
-    theme=gr.themes.Soft(),
+    title="SkinVision AI"
 ) as demo:
+
 
     gr.Markdown(
         """
 # 🩺 SkinVision AI
 
-### AI-Based Skin Disease Classification using Convolutional Neural Network (CNN)
+AI-based skin lesion classification using CNN.
 
-Upload a skin lesion image and click **Analyze Image** to receive the AI prediction.
+Upload an image of a skin lesion to get prediction results.
 
----
+⚠️ This application is for educational and research purposes only.
 """
     )
 
+
     with gr.Row():
 
-        # ==========================
-        # LEFT PANEL
-        # ==========================
-        with gr.Column(scale=1):
+        with gr.Column():
 
-            image = gr.Image(
+            input_image = gr.Image(
                 type="pil",
-                label="📷 Upload Skin Image",
-                height=420
+                label="Upload Skin Image"
             )
 
-            analyze_btn = gr.Button(
+
+            predict_button = gr.Button(
                 "🔍 Analyze Image",
-                variant="primary",
-                size="lg"
+                variant="primary"
             )
 
-            clear_btn = gr.Button(
-                "🗑️ Clear",
-                variant="secondary"
+
+        with gr.Column():
+
+            prediction_output = gr.Textbox(
+                label="Prediction"
             )
 
-        # ==========================
-        # RIGHT PANEL
-        # ==========================
-        with gr.Column(scale=1):
 
-            prediction = gr.Textbox(
-                label="🩺 Prediction",
-                interactive=False
+            confidence_output = gr.Textbox(
+                label="Confidence"
             )
 
-            confidence = gr.Textbox(
-                label="📊 Confidence (%)",
-                interactive=False
-            )
 
-            description = gr.Textbox(
-                label="📖 Description",
-                lines=5,
-                interactive=False
-            )
+    description_output = gr.Textbox(
+        label="Disease Description",
+        lines=5
+    )
 
-            recommendation = gr.Textbox(
-                label="💡 Recommendation",
-                lines=5,
-                interactive=False
-            )
 
-            top3 = gr.Textbox(
-                label="🏆 Top 3 Predictions",
-                lines=4,
-                interactive=False
-            )
+    recommendation_output = gr.Textbox(
+        label="Recommendation",
+        lines=5
+    )
 
-            probability_chart = gr.Plot(
-                label="📊 Prediction Probability"
-            )
 
-    # ==========================
-    # Button Action
-    # ==========================
+    top3_output = gr.Textbox(
+        label="Top 3 Predictions",
+        lines=5
+    )
 
-    analyze_btn.click(
+
+    chart_output = gr.Plot(
+        label="Probability Chart"
+    )
+
+
+
+    predict_button.click(
+
         fn=predict,
-        inputs=image,
+
+        inputs=input_image,
+
         outputs=[
-            prediction,
-            confidence,
-            description,
-            recommendation,
-            top3,
-            probability_chart
+
+            prediction_output,
+
+            confidence_output,
+
+            description_output,
+
+            recommendation_output,
+
+            top3_output,
+
+            chart_output
+
         ]
+
     )
 
-    clear_btn.click(
-        lambda: (
-            "",
-            "",
-            "",
-            "",
-            "",
-            None,
-            None
-        ),
-        outputs=[
-            prediction,
-            confidence,
-            description,
-            recommendation,
-            top3,
-            probability_chart,
-            image
-        ]
-    )
+# =====================================================
+# Footer
+# =====================================================
 
-    # ==========================
-    # Footer
-    # ==========================
+with demo:
 
     gr.Markdown(
         """
@@ -309,32 +480,39 @@ Upload a skin lesion image and click **Analyze Image** to receive the AI predict
 
 ## 📷 Tips for Better Prediction
 
-✅ Use a clear image of the skin lesion.
-
-✅ Ensure good lighting.
-
-✅ Keep the camera focused.
-
-✅ Avoid blurry or low-resolution images.
-
-✅ The skin lesion should occupy most of the image.
+- ✅ Use a clear image of the skin lesion.
+- ✅ Ensure good lighting conditions.
+- ✅ Keep the camera focused.
+- ✅ Avoid blurry or low-resolution images.
+- ✅ Make sure the lesion occupies most of the image.
 
 ---
 
 ## ⚠️ Medical Disclaimer
 
-This application is intended for educational and research purposes only.
+This application is intended **only for educational and research purposes**.
 
-The AI model was trained using the HAM10000 Dataset and recognizes only seven categories of skin lesions.
+The AI model was trained using the **HAM10000 Dataset** and recognizes only **seven categories of skin lesions**.
 
-This application **does not replace professional medical diagnosis**.
+The prediction result **does not replace professional medical diagnosis**.
 
-Always consult a qualified dermatologist for confirmation.
+Always consult a qualified dermatologist for proper medical evaluation and treatment.
 
 ---
 
-### 🚀 Developed with
+### 🚀 Developed With
 
-**TensorFlow • CNN • Gradio • Hugging Face Spaces**
+TensorFlow • CNN • Gradio • Hugging Face Spaces
+
 """
     )
+
+
+
+# =====================================================
+# Launch Application
+# =====================================================
+
+if __name__ == "__main__":
+
+    demo.launch()
