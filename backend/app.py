@@ -7,13 +7,11 @@ from pathlib import Path
 
 from tensorflow.keras.models import load_model
 
-
 # =====================================================
 # Configuration
 # =====================================================
 
 IMAGE_SIZE = (128, 128)
-
 
 # =====================================================
 # Load CNN Model
@@ -23,12 +21,10 @@ BASE_DIR = Path(__file__).resolve().parent
 
 MODEL_PATH = BASE_DIR / "skin_cnn.keras"
 
-
 print("=" * 60)
 print("🩺 SkinVision AI")
 print(f"Loading model from: {MODEL_PATH}")
 print("=" * 60)
-
 
 if not MODEL_PATH.exists():
     raise FileNotFoundError(
@@ -57,7 +53,6 @@ CLASSES = [
     "Vascular Lesions"
 
 ]
-
 
 # =====================================================
 # Disease Information
@@ -188,7 +183,9 @@ def preprocess_image(image: Image.Image):
 
     return img
 
-
+# =====================================================
+# Probability Chart
+# =====================================================
 
 # =====================================================
 # Probability Chart
@@ -206,7 +203,7 @@ def create_chart(predictions):
     )
 
 
-    bars = ax.barh(
+    ax.barh(
         labels,
         values
     )
@@ -228,17 +225,13 @@ def create_chart(predictions):
     )
 
 
-    for bar, value in zip(
-        bars,
-        values
-    ):
+    for i, value in enumerate(values):
 
         ax.text(
             value + 1,
-            bar.get_y() + bar.get_height() / 2,
+            i,
             f"{value:.2f}%",
-            va="center",
-            fontsize=9
+            va="center"
         )
 
 
@@ -441,7 +434,6 @@ Upload an image of a skin lesion to get prediction results.
     chart_output = gr.Plot(
         label="Probability Chart"
     )
-
 
 
     predict_button.click(
