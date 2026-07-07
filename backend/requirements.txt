@@ -2,3 +2,6 @@ tensorflow==2.21.0
 numpy
 pillow
 h5py
+gradio
+pandas
+matplotlib
